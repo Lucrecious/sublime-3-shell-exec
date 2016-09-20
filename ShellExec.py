@@ -129,7 +129,7 @@ class ShellExec:
 
     return output_file
 
-  def increment_output(self, value, args, pure_command):
+  def increment_output(self, value, args, pure_command, close = False):
     if ShellExec.get_setting('output', args) == "file":
       if not self.output_file:
         self.output_file = ShellExec.new_output_file(args, pure_command)
@@ -142,6 +142,16 @@ class ShellExec:
         self.panel_output = True
         sublime.active_window().run_command('show_panel', {"panel": "console", "toggle": False})
       sys.stdout.write(value)
+
+
+    self.output_file.run_command("move_to", {"to": "eof", "extend": False})
+    if (close) and args.get("close_on_finish"):
+      sublime.active_window().run_command("close")
+    '''self.output_file.run_command("set_motion", {
+    "motion": "vi_goto_line",
+    "motion_args": {"repeat": 1, "explicit_repeat": True, "extend": True,
+            "ending": "eof" },
+    "linewise": True })'''
 
   def execute_shell_command(sublime_shell_source, command, pure_command, args, return_error=True):
     code = sublime_shell_source + "\n" + command
@@ -159,17 +169,17 @@ class ShellExec:
     else:
       stderr = None
 
-    if ShellExec.get_setting('executable_option', args):
+    if ShellExec.get_setting('use_option', args) and ShellExec.get_setting('executable_option', args):
       if ShellExec.get_setting('debug', args):
         print('create Popen: executable=' + ShellExec.get_setting('executable', args) + ' ' + ShellExec.get_setting('executable_option', args))
       console_command = Popen([ShellExec.get_setting('executable', args), ShellExec.get_setting('executable_option', args), '-c', code], shell=False, stderr=stderr, stdout=PIPE)
     else:
       if ShellExec.get_setting('debug', args):
         print('create Popen: executable=' + ShellExec.get_setting('executable', args))
-      console_command = Popen(code, executable=ShellExec.get_setting('executable', args), shell=True, stderr=stderr, stdout=PIPE)
+      console_command = Popen([ShellExec.get_setting('executable', args), '-c', code], shell=False, stderr=stderr, stdout=PIPE)
 
     if ShellExec.get_setting('debug', args):
-      print('waiting for stdout...')
+      print('waiting for stdout... for : ' + code)
 
     # TODO: This code is shameful, needs to be improved...
     initial_time = time.time()
@@ -200,7 +210,8 @@ class ShellExec:
 
         if ShellExec.get_setting('debug', args):
           print('send result to output file.')
-        ShellExec.increment_output(shell_command_do_gui_instance, str(output) + "\n", args, pure_command)
+        ShellExec.increment_output(shell_command_do_gui_instance, str(output) + "\n", args, pure_command, True)
+
         break
 
     if ShellExec.get_setting('debug', args):
