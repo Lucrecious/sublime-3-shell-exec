@@ -135,6 +135,7 @@ class ShellExec:
         self.output_file = ShellExec.new_output_file(args, pure_command)
 
       self.output_file.run_command('shell_exec_view_insert', {'pos': self.output_file.size(), 'text': value})
+      self.output_file.run_command("move_to", {"to": "eof", "extend": False})
     elif ShellExec.get_setting('output', args) == "none":
       self.panel_output = False
     else:
@@ -143,15 +144,12 @@ class ShellExec:
         sublime.active_window().run_command('show_panel', {"panel": "console", "toggle": False})
       sys.stdout.write(value)
 
-
-    self.output_file.run_command("move_to", {"to": "eof", "extend": False})
-    if (close) and args.get("close_on_finish"):
+    if close and args.get("close_on_finish"):
+      active = sublime.active_window().active_view()
+      sublime.active_window().focus_view(self.output_file)
       sublime.active_window().run_command("close")
-    '''self.output_file.run_command("set_motion", {
-    "motion": "vi_goto_line",
-    "motion_args": {"repeat": 1, "explicit_repeat": True, "extend": True,
-            "ending": "eof" },
-    "linewise": True })'''
+      sublime.active_window().focus_view(active)
+
 
   def execute_shell_command(sublime_shell_source, command, pure_command, args, return_error=True):
     code = sublime_shell_source + "\n" + command

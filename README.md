@@ -5,9 +5,7 @@ Added new options:
 // option for using an execution option
 "shell_exec_use_option" : true,
 
-// This closes the active window (the one being used) upon finishing execution
-// There's a bug where if you switch active windows, it'll close that one
-// instead. Seems like an easy fix (one line) but don't really care
+// Closes the window used as the console after the text output is done
 "args": { "close_on_finish": true}
 ```
 
