@@ -1,6 +1,6 @@
 # Shell Exec
 
-Added a new option:
+Added new options:
 ```JavaScript
 // option for using an execution option
 "shell_exec_use_option" : true,
@@ -8,7 +8,7 @@ Added a new option:
 // This closes the active window (the one being used) upon finishing execution
 // There's a bug where if you switch active windows, it'll close that one
 // instead. Seems like an easy fix (one line) but don't really care
-"args": { "close_on_finish"}
+"args": { "close_on_finish": true}
 ```
 
 Run shell commands like git, rvm, rspec, ls, etc. with Bash, Zsh and others inside your Sublime Text 3.
